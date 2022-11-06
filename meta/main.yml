@@ -1,0 +1,12 @@
+galaxy_info:
+  role_name: k3s
+  author: RnodeC
+  description: deploy k3s cluster.  linux amd64 only. 
+  license: "license (BSD, MIT)"
+
+  min_ansible_version: 2.11
+  galaxy_tags: 
+  - k3s 
+  - kubernetes
+
+dependencies: []

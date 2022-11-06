@@ -1,0 +1,17 @@
+---
+- name: Update apt cache 
+  become: true 
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Update all packages to their latest version
+  become: true 
+  apt:
+    name: "*"
+    state: latest
+
+- name: Upgrade the OS (apt-get dist-upgrade)
+  become: true 
+  apt:
+    upgrade: dist

@@ -1,0 +1,8 @@
+---
+- name: Add k3s_api_hostname to /etc/hosts
+  become: true 
+  lineinfile: 
+    path: /etc/hosts
+    regexp: "^{{ k3s_api_ip }} {{ k3s_api_hostname }} {{ k3s_api_fqdn }}"
+    line: "{{ k3s_api_ip }} {{ k3s_api_hostname }} {{ k3s_api_fqdn }}"
+    state: present

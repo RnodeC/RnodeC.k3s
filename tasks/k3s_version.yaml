@@ -1,0 +1,23 @@
+---
+- name: Establish k3s version
+  uri: 
+    url: https://update.k3s.io/v1-release/channels
+  register: msg
+
+- set_fact:
+    latest_k3s_version: "{{ msg.json.data | json_query(query) }}"
+  vars: 
+    query: "[? name==`{{ k3s_channel }}`].latest"
+
+- debug: >
+    msg="Latest available version in k3s_channel {{ k3s_channel }} is: {{ latest_k3s_version[0] }}"
+
+- set_fact: 
+    k3s_version: "{{ latest_k3s_version[0] }}"
+  when: k3s_version is undefined
+
+- debug: >
+    msg="We are installing: {{ k3s_version }}"
+
+- set_fact: 
+    k3s_version_plain: "{{ k3s_version | replace('+', '') }}"

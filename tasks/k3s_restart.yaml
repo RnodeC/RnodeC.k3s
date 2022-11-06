@@ -1,0 +1,7 @@
+---
+- name: Restart k3s service 
+  become: true 
+  failed_when: false
+  systemd: 
+    name: "k3s-{{ k3s_role }}.service"
+    state: restarted
