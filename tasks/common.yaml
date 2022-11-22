@@ -6,3 +6,12 @@
     regexp: "^{{ k3s_api_ip }} {{ k3s_api_hostname }} {{ k3s_api_fqdn }}"
     line: "{{ k3s_api_ip }} {{ k3s_api_hostname }} {{ k3s_api_fqdn }}"
     state: present
+
+- name: Add local-k3s.env file to server root homedir, for any local debugging
+  become: true 
+  copy: 
+    src: local-k3s.env
+    dest: /root/local-k3s.env
+    owner: root 
+    group: root 
+    mode: 0700
