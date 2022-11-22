@@ -97,7 +97,7 @@
     group: root 
     mode: 0755 
     remote_src: true 
-  when: k3s_version_output.rc != 0 or ( k3s_version not in k3s_version_output.stdout and ( k3s_upgrade | bool ))
+  when: k3s_version_output.rc != 0 or k3s_upgrade | bool
 
 - name: Move k3s binary to /usr/local/bin   
   become: true 
@@ -108,7 +108,7 @@
     group: root 
     mode: 0755 
     remote_src: true 
-  when: k3s_version_output.rc != 0 or ( k3s_version not in k3s_version_output.stdout and (k3s_upgrade | bool ))
+  when: k3s_version_output.rc != 0 or k3s_upgrade | bool
 
 - name: Install k3s service file 
   become: true 
@@ -118,6 +118,7 @@
     owner: root
     group: root 
     mode: 0755
+  when: k3s_version_output.rc != 0 or k3s_upgrade | bool
 
 - name: Start k3s service 
   become: true 
