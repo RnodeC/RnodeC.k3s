@@ -12,6 +12,25 @@
 - name: Install k3s
   include_tasks: k3s_install.yaml 
 
+- name: Start k3s service 
+  become: true 
+  systemd: 
+    name: "k3s-{{ k3s_role }}"
+    state: started 
+    enabled: true 
+
+- name: Wait for k3s service to be ready
+  shell: "{{ k3s_bin_dir }}/k3s kubectl get nodes | grep {{ ansible_hostname }}"
+  args: 
+    executable: /bin/bash
+  changed_when: false 
+  register: node_ready
+  until: '" Ready " in node_ready.stdout'
+  retries: 10
+  delay: 30
+  become: true
+  when: k3s_role == 'server'
+
 - name: Trigger rolling restart (if an upgrade)
   include_tasks: k3s_restart.yaml 
   when: k3s_upgrade | bool
