@@ -82,7 +82,7 @@
 - name: Ensure k3s images dir exists
   become: true 
   file:
-    path: /var/lib/rancher/k3s/agent/images
+    path: "{{ k3s_images_dir }}"
     state: directory
     owner: root 
     group: root 
@@ -92,7 +92,7 @@
   become: true 
   copy: 
     src: "{{ images_archive.dest }}"
-    dest: /var/lib/rancher/k3s/agent/images/
+    dest: "{{ k3s_images_dir }}/"
     owner: root 
     group: root 
     mode: 0755 
@@ -103,7 +103,7 @@
   become: true 
   copy: 
     src: "{{ binary_file.dest }}"
-    dest: /usr/local/bin/k3s 
+    dest: "{{ k3s_bin_dir }}/k3s" 
     owner: root 
     group: root 
     mode: 0755 
@@ -119,10 +119,3 @@
     group: root 
     mode: 0755
   when: k3s_version_output.rc != 0 or k3s_upgrade | bool
-
-- name: Start k3s service 
-  become: true 
-  systemd: 
-    name: "k3s-{{ k3s_role }}"
-    state: started 
-    enabled: true 
