@@ -9,6 +9,9 @@
 - name: Establish k3s version 
   include_tasks: k3s_version.yaml 
 
+- name: Setup k3s config files 
+  include_tasks: k3s_config_files.yaml
+  
 - name: Install k3s
   include_tasks: k3s_install.yaml 
 
