@@ -5,8 +5,6 @@ node-ip: {{ node_ip }}
 tls-san: {{ k3s_api_fqdn }}
 disable-cloud-controller: true
 disable: metrics-server
-kubelet-arg:
-
 kube-apiserver-arg:
   - 'audit-log-path=/var/lib/rancher/k3s/server/logs/audit.log'
   - 'audit-policy-file=/etc/rancher/k3s/audit-policy.yaml'
