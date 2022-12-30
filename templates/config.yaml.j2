@@ -15,6 +15,8 @@ kube-apiserver-arg:
   - 'service-account-lookup=true'
   - 'enable-admission-plugins=NodeRestriction,PodSecurity,NamespaceLifecycle,ServiceAccount'
   - 'admission-control-config-file=/etc/rancher/k3s/cluster-level-pss.yaml'
+node-taint:
+  - "CriticalAddonsOnly=true:NoExecute"
 {% endif %}
 {% if k3s_role == 'agent' %}
 server: https://{{ k3s_api_fqdn }}:{{ k3s_api_port }}
