@@ -1,9 +1,12 @@
 ---
-token: {{k3s_token}}
-node-ip: {{node_ip}}
-{%if k3s_role == 'server'%}
-tls-san: {{k3s_api_fqdn}}
+token: {{ k3s_token }}
+node-ip: {{ node_ip }}
+{% if k3s_role == 'server' %}
+tls-san: {{ k3s_api_fqdn }}
 disable-cloud-controller: true
+disable: metrics-server
+kubelet-arg:
+
 kube-apiserver-arg:
   - 'audit-log-path=/var/lib/rancher/k3s/server/logs/audit.log'
   - 'audit-policy-file=/etc/rancher/k3s/audit-policy.yaml'
@@ -14,7 +17,7 @@ kube-apiserver-arg:
   - 'service-account-lookup=true'
   - 'enable-admission-plugins=NodeRestriction,PodSecurity,NamespaceLifecycle,ServiceAccount'
   - 'admission-control-config-file=/etc/rancher/k3s/cluster-level-pss.yaml'
-{%endif%}
-{%if k3s_role == 'agent'%}
-server: https://{{k3s_api_fqdn}}:{{k3s_api_port}}
-{%endif%}
+{% endif %}
+{% if k3s_role == 'agent' %}
+server: https://{{ k3s_api_fqdn }}:{{ k3s_api_port }}
+{% endif %}
