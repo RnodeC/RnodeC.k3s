@@ -1,10 +1,10 @@
 ---
 k3s_upgrade: false
 k3s_channel: stable
-k3s_token: secret 
 k3s_api_hostname: server
-ks3_api_domain: local
-k3s_api_fqdn: "{{ k3s_api_hostname }}.{{ ks3_api_domain }}"
+k3s_api_domain: local
+k3s_api_fqdn: "{{ k3s_api_hostname }}.{{ k3s_api_domain }}"
+k3s_api_ip: 127.0.0.1
 k3s_api_port: 6443
 
 

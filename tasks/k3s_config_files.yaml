@@ -36,12 +36,3 @@
     group: root 
     mode: 0644
   when: k3s_role == 'server'
-
-- name: Install k3s service file 
-  become: true 
-  template:
-    src: k3s.service.j2
-    dest: "{{ k3s_systemd_dir }}/k3s-{{ k3s_role }}.service" 
-    owner: root
-    group: root 
-    mode: 0755

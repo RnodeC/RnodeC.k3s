@@ -18,7 +18,7 @@ k3s_channel: stable
 k3s_upgrade: false
 k3s_token: badsecret 
 k3s_api_hostname: server
-ks3_api_domain: local
+k3s_api_domain: local
 ```
 
 #### k3s_channel 
@@ -38,7 +38,7 @@ Example Playbook
   hosts: cluster
 
   vars: 
-    k3s_channel: v1.23
+    k3s_channel: v1.24
   
   roles:
   - role: RnodeC.k3s 
