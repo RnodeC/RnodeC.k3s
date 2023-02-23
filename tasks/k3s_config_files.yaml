@@ -1,38 +1,37 @@
 ---
-- name: Create k3s config dir
-  become: true 
-  file:
-    path: /etc/rancher/k3s
-    state: directory
-    owner: root
-    group: root 
-    mode: 0755 
+- block:
+  - name: Create k3s config dir
+    file:
+      path: /etc/rancher/k3s
+      state: directory
+      owner: root
+      group: root 
+      mode: 0755 
 
-- name: Create k3s config.yaml file 
-  become: true 
-  template:
-    src: config.yaml.j2 
-    dest: /etc/rancher/k3s/config.yaml 
-    owner: root 
-    group: root 
-    mode: 0644
+  - name: Create k3s config.yaml file 
+    template:
+      src: config.yaml.j2 
+      dest: /etc/rancher/k3s/config.yaml 
+      owner: root 
+      group: root 
+      mode: 0644
 
-- name: Add k3s audit-policy.yaml file
-  become: true 
-  copy:
-    src: audit-policy.yaml
-    dest: /etc/rancher/k3s/audit-policy.yaml
-    owner: root 
-    group: root 
-    mode: 0644
-  when: k3s_role == 'server'
+  - name: Add k3s audit-policy.yaml file
+    copy:
+      src: audit-policy.yaml
+      dest: /etc/rancher/k3s/audit-policy.yaml
+      owner: root 
+      group: root 
+      mode: 0644
+    when: k3s_role == 'server'
 
-- name: Add k3s cluster-level-pss.yaml file
+  - name: Add k3s cluster-level-pss.yaml file
+    copy:
+      src: cluster-level-pss.yaml
+      dest: /etc/rancher/k3s/cluster-level-pss.yaml
+      owner: root 
+      group: root 
+      mode: 0644
+    when: k3s_role == 'server'
   become: true 
-  copy:
-    src: cluster-level-pss.yaml
-    dest: /etc/rancher/k3s/cluster-level-pss.yaml
-    owner: root 
-    group: root 
-    mode: 0644
-  when: k3s_role == 'server'
+  tags: upgrade

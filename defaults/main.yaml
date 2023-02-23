@@ -1,13 +1,14 @@
 ---
-k3s_upgrade: false
 k3s_channel: stable
 k3s_api_hostname: server
 k3s_api_domain: local
 k3s_api_fqdn: "{{ k3s_api_hostname }}.{{ k3s_api_domain }}"
 k3s_api_ip: 127.0.0.1
 k3s_api_port: 6443
-
-
 k3s_systemd_dir: /etc/systemd/system
 k3s_bin_dir: /usr/local/bin
 k3s_images_dir: /var/lib/rancher/k3s/agent/images
+k3s_manifests_dir: /var/lib/rancher/k3s/server/manifests
+k3s_local_storage: true
+k3s_local_storage_path: /var/lib/rancher/k3s/storage
+k3s_disable_components: metrics-server

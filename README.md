@@ -15,7 +15,6 @@ No variables are required for this role.  See `defaults/main.yaml` for full list
 
 ```
 k3s_channel: stable
-k3s_upgrade: false
 k3s_token: badsecret 
 k3s_api_hostname: server
 k3s_api_domain: local
@@ -44,7 +43,7 @@ Example Playbook
   - role: RnodeC.k3s 
 ```
 
-If this is an upgrade scenario, be sure to set `k3s_upgrade` to true. This will trigger a rolling restart of the cluster.  
+If this is an upgrade scenario, be sure to set `--tags upgrade` in your ansible command. This will trigger a rolling restart of the cluster.  
 
 
 Author Information

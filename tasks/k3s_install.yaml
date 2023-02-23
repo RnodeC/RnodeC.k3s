@@ -1,102 +1,97 @@
 ---
-- name: Determine current installed version, if any
-  command: /usr/local/bin/k3s --version
-  register: k3s_version_output
-  changed_when: false 
-  failed_when: false
+- block:
+  - name: Determine current installed version, if any
+    command: /usr/local/bin/k3s --version
+    register: k3s_version_output
+    changed_when: false 
+    failed_when: false
+    tags: upgrade
+
+  - name: Create k3s assets dir
+    file:
+      path: "/opt/k3s/{{ k3s_version_plain }}"
+      state: directory
+      owner: root
+      group: root 
+      mode: 0755 
+
+  - name: Download k3s checksums
+    get_url:
+      url: "https://github.com/k3s-io/k3s/releases/download/{{ k3s_version | urlencode }}/sha256sum-amd64.txt"
+      dest: "/opt/k3s/{{ k3s_version_plain }}"
+      owner: root 
+      group: root
+      mode: 0755 
+
+  - name: Read k3s checksums
+    register: checksums 
+    slurp:
+      src: "/opt/k3s/{{ k3s_version_plain }}/sha256sum-amd64.txt"
+
+  - name: Register k3s binary checksum
+    set_fact: 
+      k3s_bin_checksum: "{{ checksums['content'] | b64decode | split('\n') | select('match', '.*k3s$') | join() | split(' ') | first }}"
+  - debug: var=k3s_bin_checksum
+
+  - name: Register k3s images checksum
+    set_fact: 
+      k3s_images_checksum: "{{ checksums['content'] | b64decode | split('\n') | select('match', '.*k3s-airgap-images.*zst$') | join() | split(' ') | first }}"
+  - debug: var=k3s_images_checksum
+
+  - name: Download k3s images
+    get_url:
+      url: "https://github.com/k3s-io/k3s/releases/download/{{ k3s_version | urlencode }}/k3s-airgap-images-amd64.tar.zst"
+      dest: "/opt/k3s/{{ k3s_version_plain }}"
+      owner: root
+      group: root 
+      mode: 0755
+      checksum: "sha256:{{ k3s_images_checksum }}"
+    register: images_archive 
+
+  - name: Download k3s binary
+    get_url:
+      url: "https://github.com/k3s-io/k3s/releases/download/{{ k3s_version | urlencode }}/k3s"
+      dest: "/opt/k3s/{{ k3s_version_plain }}/k3s"
+      owner: root
+      group: root 
+      mode: 0755
+      checksum: "sha256:{{ k3s_bin_checksum }}"
+    register: binary_file
+
+  - name: Ensure k3s images dir exists
+    file:
+      path: "{{ k3s_images_dir }}"
+      state: directory
+      owner: root 
+      group: root 
+      mode: 0755 
+
+  - name: Move images archive to images dir  
+    copy: 
+      src: "{{ images_archive.dest }}"
+      dest: "{{ k3s_images_dir }}/"
+      owner: root 
+      group: root 
+      mode: 0755 
+      remote_src: true 
+    when: k3s_version_output.rc != 0
+
+  - name: Move k3s binary to /usr/local/bin   
+    copy: 
+      src: "{{ binary_file.dest }}"
+      dest: "{{ k3s_bin_dir }}/k3s" 
+      owner: root 
+      group: root 
+      mode: 0755 
+      remote_src: true 
+    when: k3s_version_output.rc != 0
+
+  - name: Install k3s service file 
+    template:
+      src: k3s.service.j2
+      dest: "{{ k3s_systemd_dir }}/k3s-{{ k3s_role }}.service" 
+      owner: root
+      group: root 
+      mode: 0755
+  become: true 
   tags: upgrade
-
-- name: Create k3s assets dir
-  become: true 
-  file:
-    path: "/opt/k3s/{{ k3s_version_plain }}"
-    state: directory
-    owner: root
-    group: root 
-    mode: 0755 
-
-- name: Download k3s checksums
-  become: true 
-  get_url:
-    url: "https://github.com/k3s-io/k3s/releases/download/{{ k3s_version | urlencode }}/sha256sum-amd64.txt"
-    dest: "/opt/k3s/{{ k3s_version_plain }}"
-    owner: root 
-    group: root
-    mode: 0755 
-
-- name: Read k3s checksums
-  register: checksums 
-  slurp:
-    src: "/opt/k3s/{{ k3s_version_plain }}/sha256sum-amd64.txt"
-
-- name: Register k3s binary checksum
-  set_fact: 
-    k3s_bin_checksum: "{{ checksums['content'] | b64decode | split('\n') | select('match', '.*k3s$') | join() | split(' ') | first }}"
-- debug: var=k3s_bin_checksum
-
-- name: Register k3s images checksum
-  set_fact: 
-    k3s_images_checksum: "{{ checksums['content'] | b64decode | split('\n') | select('match', '.*k3s-airgap-images.*zst$') | join() | split(' ') | first }}"
-- debug: var=k3s_images_checksum
-
-- name: Download k3s images
-  become: true 
-  get_url:
-    url: "https://github.com/k3s-io/k3s/releases/download/{{ k3s_version | urlencode }}/k3s-airgap-images-amd64.tar.zst"
-    dest: "/opt/k3s/{{ k3s_version_plain }}"
-    owner: root
-    group: root 
-    mode: 0755
-    checksum: "sha256:{{ k3s_images_checksum }}"
-  register: images_archive 
-
-- name: Download k3s binary
-  become: true 
-  get_url:
-    url: "https://github.com/k3s-io/k3s/releases/download/{{ k3s_version | urlencode }}/k3s"
-    dest: "/opt/k3s/{{ k3s_version_plain }}/k3s"
-    owner: root
-    group: root 
-    mode: 0755
-    checksum: "sha256:{{ k3s_bin_checksum }}"
-  register: binary_file
-
-- name: Ensure k3s images dir exists
-  become: true 
-  file:
-    path: "{{ k3s_images_dir }}"
-    state: directory
-    owner: root 
-    group: root 
-    mode: 0755 
-
-- name: Move images archive to images dir  
-  become: true 
-  copy: 
-    src: "{{ images_archive.dest }}"
-    dest: "{{ k3s_images_dir }}/"
-    owner: root 
-    group: root 
-    mode: 0755 
-    remote_src: true 
-  when: k3s_version_output.rc != 0 or k3s_upgrade | bool
-
-- name: Move k3s binary to /usr/local/bin   
-  become: true 
-  copy: 
-    src: "{{ binary_file.dest }}"
-    dest: "{{ k3s_bin_dir }}/k3s" 
-    owner: root 
-    group: root 
-    mode: 0755 
-    remote_src: true 
-  when: k3s_version_output.rc != 0 or k3s_upgrade | bool
-
-- name: Install k3s service file 
-  become: true 
-  template:
-    src: k3s.service.j2
-    dest: "{{ k3s_systemd_dir }}/k3s-{{ k3s_role }}.service" 
-    owner: root
-    group: root 
-    mode: 0755
